@@ -84,7 +84,7 @@ export default {
         @start="startCallback"
         @end="endCallback"
     />
-    <div style="width: 400px">
+    <div style="width: 450px">
       <span style="font-weight: bolder;font-size: 30px">{{ '记录：' }}</span>
       <ul style="font-size: 22px;overflow-y: auto;height: 450px">
         <li v-for="(record, index) in drawHistory" :key="index">
