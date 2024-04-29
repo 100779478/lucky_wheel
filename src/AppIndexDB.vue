@@ -1,7 +1,9 @@
 <script>
 import {clearSchema, addRecord, doDelete, getRecord, addManyRecord} from "@/common/common.js";
+import {Button} from "view-ui-plus";
 
 export default {
+  components: {Button},
   data() {
     const recordHistory = localStorage.getItem("drawHistory") || []
     return {
@@ -41,7 +43,11 @@ export default {
   },
   methods: {
     addManyRecord(arr) {
-      addManyRecord(arr).then(res => this.drawHistory = res)
+      addManyRecord(arr).then(() => {
+        getRecord().then(res => {
+          this.drawHistory = res || []
+        })
+      })
     },
     clearSchema() {
       clearSchema().then(() => {
@@ -106,11 +112,11 @@ export default {
         @start="startCallback"
         @end="endCallback"
     />
-    <div style="width: 450px">
-      <span style="font-weight: bolder;font-size: 30px">{{ '记录：' }}</span>
-      <button @click="doDelete(drawHistory[0].id)">删除</button>
-      <button @click="clearSchema()">清空</button>
-      <button @click="addManyRecord(JSON.parse(recordHistory))">添加localstorage数据</button>
+    <div style="width: 500px">
+      <Button type="error" @click="doDelete(drawHistory[0].id)" style="margin-right: 5px">撤销</Button>
+      <Button type="warning" @click="clearSchema()" style="margin-right: 5px">清空记录</Button>
+      <Button type="success" @click="addManyRecord(JSON.parse(recordHistory))">读取数据</Button>
+      <div style="font-weight: bolder;font-size: 30px">{{ '记录：' }}</div>
       <ul style="font-size: 22px;overflow-y: auto;height: 450px">
         <li v-for="(record, index) in drawHistory" :key="index" :style="{color: index===0?'red':''}">
           {{ record.time }} - {{ record.item }}

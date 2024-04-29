@@ -1,4 +1,5 @@
 import GoDB from "godb";
+import {Message} from "view-ui-plus";
 // 定义数据库结构
 const schema = {
     // user 表：
@@ -17,8 +18,29 @@ export function addRecord(data) {
 }
 
 export function addManyRecord(dataArr) {
-    return record.addMany(dataArr)
+    return getRecord().then(existingRecords => {
+        // 过滤掉已经存在的记录
+        const newDataArr = dataArr.filter(newRecord => {
+            return !existingRecords.some(existingRecord => {
+                // 比较新记录和已存在记录的属性值是否相同
+                return newRecord.property === existingRecord.property; // 用实际属性替换 property
+            });
+        });
+        if (newDataArr.length === 0) {
+            Message.error('读取失败，已经是最新数据');
+        }
+        // 添加剩余的新记录
+        return record.addMany(newDataArr);
+    });
 }
+
+// export function addManyRecord(dataArr) {
+//     getRecord().then(res => {
+//         console.log(dataArr === res)
+//         console.log(res, 333222)
+//     })
+//     return record.addMany(dataArr)
+// }
 
 // 删除一条记录
 export function doDelete(id) {
@@ -36,11 +58,13 @@ export function getRecord() {
     });
 }
 
-
+// 清空列表
 export function clearSchema() {
-    return record.getAll().then(res => res.map(item => {
-        return record.delete(item.id)
-    }))
-    // const records = record.getAll().then()
-    // return Promise.all(records.map(item => record.delete(item.id)))
+    return record.getAll().then(records => {
+        const deletePromises = records.map(item => record.delete(item.id));
+        return Promise.all(deletePromises);
+    })
+    // return record.getAll().then(res => res.map(item => {
+    //     return record.delete(item.id)
+    // }))
 }
